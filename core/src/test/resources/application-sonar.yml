@@ -1,0 +1,44 @@
+debug: true
+
+spring:
+  profiles:
+    active: sonar
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/stats
+      password:
+      database: stats
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+
+redisson:
+  hostname: localhost
+  password:
+  port: 6379
+  database: 0
+  timeout: 20000
+  clusterEnabled: false
+  pool:
+    maxTotal: 10
+    maxIdle: 10
+    maxWaitMillis: 3000
+
+client:
+  mobile:
+    host: http://localhost:${wiremock.server.port}
+  online:
+    internal:
+      host: http://localhost:${wiremock.server.port}
+    external:
+      host: http://localhost:${wiremock.server.port}
+
+kafka:
+  hosts: localhost:9092
+  groupId: stats
+  topic: stats.ci-test

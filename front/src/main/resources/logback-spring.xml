@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="LOG_PATH" value="/logs" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <encoder>
+            <Pattern>%d{yyyy-MMM-dd HH:mm:ss.SSS}[%-5level [%thread] %logger{15}.%M\(%line\) - %msg%n</Pattern>
+        </encoder>
+    </appender>
+
+    <appender name="rolling" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/stats.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${LOG_PATH}/stats-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <!--        <encoder>-->
+        <!--            <pattern>%date{ISO8601} %-5level %logger{32} - %msg%n</pattern>-->
+        <!--        </encoder>-->
+        <encoder>
+            <Pattern>%d{yyyy-MMM-dd HH:mm:ss.SSS}[%-5level [%thread] %logger{15}.%M\(%line\) - %msg%n</Pattern>
+        </encoder>
+    </appender>
+
+    <appender name="slackMessage" class="com.github.maricn.logback.SlackAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%-4relative [%thread] %-5level %class - %msg%n</pattern>
+        </layout>
+        <webhookUri>https://hooks.slack.com/services/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</webhookUri>
+        <username>[${spring.profiles.active}]-stats</username>
+        <iconEmoji>:confused:</iconEmoji>
+        <colorCoding>true</colorCoding>
+    </appender>
+
+    <logger name="EXCEPTION_LOG">
+        <appender-ref ref="slackMessage" />
+    </logger>
+    <logger name="org.redisson" level="ERROR" />
+    <logger name="com.mongodb" level="ERROR"/>
+    <logger name="org.mongodb" level="ERROR"/>
+    <logger name="io.netty" level="ERROR" />
+    <logger name="org.apache.kafka" level="INFO"/>
+    <logger name="com.smilegate" level="${APP_LOG_LEVEL}"/>
+    <logger name="org.springframework" level="${APP_LOG_LEVEL}"/>
+    <logger name="org.springframework.web.filter" level="${APP_LOG_LEVEL}"/>
+    <logger name="org.springframework.web.servlet.mvc.method.annotation" level="${APP_LOG_LEVEL}"/>
+
+    <springProfile name="!dev &amp; !qa &amp; !qa2 &amp; !perf &amp; !sandbox &amp; !live">
+        <property name="ROOT_LOG_LEVEL" value="DEBUG"/>
+        <property name="APP_LOG_LEVEL" value="DEBUG"/>
+    </springProfile>
+
+    <springProfile name="dev, qa, qa2, sandbox">
+        <property name="ROOT_LOG_LEVEL" value="DEBUG"/>
+        <property name="APP_LOG_LEVEL" value="DEBUG"/>
+    </springProfile>
+
+    <springProfile name="perf">
+        <property name="ROOT_LOG_LEVEL" value="WARN"/>
+        <property name="APP_LOG_LEVEL" value="WARN"/>
+    </springProfile>
+
+    <springProfile name="live">
+        <property name="ROOT_LOG_LEVEL" value="INFO"/>
+        <property name="APP_LOG_LEVEL" value="INFO"/>
+    </springProfile>
+
+    <root level="${ROOT_LOG_LEVEL}">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="rolling"/>
+    </root>
+
+</configuration>

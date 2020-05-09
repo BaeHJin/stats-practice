@@ -1,0 +1,38 @@
+debug: true
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://stats:password@localhost:27017/stats
+      password: password
+      database: stats
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+
+client:
+  mobile:
+    host: http://localhost:${wiremock.server.port}
+  online:
+    internal:
+      host: http://localhost:${wiremock.server.port}
+    external:
+      host: http://localhost:${wiremock.server.port}
+
+
+#elasticsearch:
+#  clustername: elasticsearch
+#  host: 10.250.18.102
+#  port: 9300
+
+kafka:
+  hosts: localhost:9092
+  groupId: stats
+  topic: stats.routing-test
+
+
